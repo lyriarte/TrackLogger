@@ -6,10 +6,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 
 public class TrackLogger extends ActionBarActivity implements LocationListener {
@@ -23,6 +27,8 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
 
     LocationManager mLocationManager;
     Location mLocation;
+
+    FileWriter gpxLogWriter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +62,30 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
                     minTimeUpdateSeconds * 1000,
                     minDistanceUpdateMeters,
                     this);
+            if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
+                return true;
+            try {
+                gpxLogWriter = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
+                        + getString(R.string.app_name) + "_" + String.valueOf(Calendar.getInstance().getTime().getTime())
+                        + ".gpx"
+                );
+                gpxLogWriter.write(xmlHeader + gpxTrackHeader);
+            } catch (Exception e) {
+                gpxLogWriter = null;
+            }
             return true;
         }
         if (id == R.id.action_log_stop) {
             mLocationManager.removeUpdates(this);
+            if (gpxLogWriter == null)
+                return true;
+            try {
+                gpxLogWriter.append(gpxTrackFooter);
+                gpxLogWriter.close();
+            } catch (IOException e)
+            {
+                gpxLogWriter = null;
+            }
             return true;
         }
 
@@ -88,7 +114,15 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         mLocation = location;
-        updateTrackPoint(mLocation.getLatitude(),mLocation.getLongitude(),mLocation.getAltitude(),mLocation.getTime());
+        updateTrackPoint(mLocation.getLatitude(), mLocation.getLongitude(), mLocation.getAltitude(), mLocation.getTime());
+        if (gpxLogWriter == null)
+            return;
+        try {
+            gpxLogWriter.append(gpxTrackPoint(mLocation.getLatitude(), mLocation.getLongitude(), mLocation.getAltitude(), mLocation.getTime()));
+        } catch (IOException e)
+        {
+            gpxLogWriter = null;
+        }
     }
 
     @Override
