@@ -4,6 +4,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import java.sql.Timestamp;
+import java.util.Calendar;
 
 
 public class TrackLogger extends ActionBarActivity {
@@ -12,6 +15,7 @@ public class TrackLogger extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_logger);
+        updateTrackPoint(43.611769,4.010320,3,Calendar.getInstance().getTimeInMillis());
     }
 
 
@@ -39,4 +43,12 @@ public class TrackLogger extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void updateTrackPoint(double lat, double lon, double ele, long time) {
+        ((TextView)findViewById(R.id.value_lat)).setText(Double.valueOf(lat).toString());
+        ((TextView)findViewById(R.id.value_lon)).setText(Double.valueOf(lon).toString());
+        ((TextView)findViewById(R.id.value_ele)).setText(Double.valueOf(ele).toString());
+        ((TextView)findViewById(R.id.value_time)).setText(new Timestamp(time).toString());
+    }
+
 }
