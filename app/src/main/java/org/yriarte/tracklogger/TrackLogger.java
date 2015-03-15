@@ -30,6 +30,41 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
 
     FileWriter gpxLogWriter;
 
+    public void startLogging() {
+        if (gpxLogWriter != null)
+            stopLogging();
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                minTimeUpdateSeconds * 1000,
+                minDistanceUpdateMeters,
+                this);
+        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
+            return;
+        try {
+            gpxLogWriter = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
+                    + getString(R.string.app_name) + "_" + String.valueOf(Calendar.getInstance().getTime().getTime())
+                    + ".gpx"
+            );
+            gpxLogWriter.write(xmlHeader + gpxTrackHeader);
+        } catch (Exception e) {
+            gpxLogWriter = null;
+        }
+
+    }
+
+    public void stopLogging() {
+        mLocationManager.removeUpdates(this);
+        if (gpxLogWriter == null)
+            return;
+        try {
+            gpxLogWriter.append(gpxTrackFooter);
+            gpxLogWriter.close();
+        } catch (Exception e)
+        {
+        }
+        gpxLogWriter = null;
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +75,6 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
             return;
         updateTrackPoint(mLocation.getLatitude(),mLocation.getLongitude(),mLocation.getAltitude(),mLocation.getTime());
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -58,34 +92,11 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_log_start) {
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    minTimeUpdateSeconds * 1000,
-                    minDistanceUpdateMeters,
-                    this);
-            if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
-                return true;
-            try {
-                gpxLogWriter = new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
-                        + getString(R.string.app_name) + "_" + String.valueOf(Calendar.getInstance().getTime().getTime())
-                        + ".gpx"
-                );
-                gpxLogWriter.write(xmlHeader + gpxTrackHeader);
-            } catch (Exception e) {
-                gpxLogWriter = null;
-            }
+            startLogging();
             return true;
         }
         if (id == R.id.action_log_stop) {
-            mLocationManager.removeUpdates(this);
-            if (gpxLogWriter == null)
-                return true;
-            try {
-                gpxLogWriter.append(gpxTrackFooter);
-                gpxLogWriter.close();
-            } catch (IOException e)
-            {
-                gpxLogWriter = null;
-            }
+            stopLogging();
             return true;
         }
 
@@ -119,7 +130,7 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
             return;
         try {
             gpxLogWriter.append(gpxTrackPoint(mLocation.getLatitude(), mLocation.getLongitude(), mLocation.getAltitude(), mLocation.getTime()));
-        } catch (IOException e)
+        } catch (Exception e)
         {
             gpxLogWriter = null;
         }
