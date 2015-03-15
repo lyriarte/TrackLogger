@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TrackLogger</string>
+
+    <string name="track_logger">Track Logger</string>
+    <string name="action_log_start">Start logging</string>
+    <string name="action_log_stop">Stop logging</string>
+</resources>
