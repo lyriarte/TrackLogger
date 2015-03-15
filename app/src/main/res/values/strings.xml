@@ -4,4 +4,8 @@
     <string name="track_logger">Track Logger</string>
     <string name="action_log_start">Start logging</string>
     <string name="action_log_stop">Stop logging</string>
+    <string name="str_lat">Latitude</string>
+    <string name="str_lon">Longitude</string>
+    <string name="str_ele">Elevation</string>
+    <string name="str_time">Time</string>
 </resources>
