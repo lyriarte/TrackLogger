@@ -17,6 +17,10 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
     static int minTimeUpdateSeconds = 30;
     static float minDistanceUpdateMeters = 5;
 
+    static String xmlHeader = "<?xml version='1.0' encoding='Utf-8' standalone='yes' ?>";
+    static String gpxTrackHeader = "<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" version=\"1.0\" creator=\"org.yriarte.tracklogger\">\n<trk>\n<trkseg>\n";
+    static String gpxTrackFooter = "\n</trkseg>\n</trk>\n</gpx>\n";
+
     LocationManager mLocationManager;
     Location mLocation;
 
@@ -67,6 +71,18 @@ public class TrackLogger extends ActionBarActivity implements LocationListener {
         ((TextView)findViewById(R.id.value_lon)).setText(Double.valueOf(lon).toString());
         ((TextView)findViewById(R.id.value_ele)).setText(Double.valueOf(ele).toString());
         ((TextView)findViewById(R.id.value_time)).setText(new Timestamp(time).toString());
+    }
+
+    public String gpxTrackPoint(double lat, double lon, double ele, long time) {
+        String trkpt = "<trkpt";
+        trkpt += " lon=\"" + Double.valueOf(lon).toString() + "\"";
+        trkpt += " lat=\"" + Double.valueOf(lat).toString() + "\"";
+        trkpt += ">\n  <ele>" + Double.valueOf(ele).toString() + "</ele>\n";
+        byte timebytes[] = new Timestamp(time).toString().getBytes();
+        timebytes[10]='T'; timebytes[19]='Z';
+        trkpt += "  <time>" + new String(timebytes).substring(0,20) + "</time>\n";
+        trkpt += "</trkpt>\n";
+        return trkpt;
     }
 
     @Override
