@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, xml.parsers.expat, xml.dom
+import sys, xml.parsers.expat
 
 xmlHeader = "<?xml version='1.0' encoding='Utf-8' standalone='yes' ?>"
 kmlHeader = "<kml xmlns='http://www.opengis.net/kml/2.2'><Placemark>"
@@ -37,7 +37,10 @@ outfile.write(lineStringHeader + "\n")
 outfile.write(coordinatesHeader + "\n")
 
 parser.StartElementHandler = gpxStartElementHandler
-parser.ParseFile(infile)
+try:
+	parser.ParseFile(infile)
+except Exception:
+	print "Warning: gpx file may be incomplete, closing track"
 infile.close()
 
 outfile.write(coordinatesFooter + "\n")
