@@ -20,9 +20,30 @@ outfile = open(sys.argv[2], 'w')
 
 parser = xml.parsers.expat.ParserCreate()
 
+elevationOk = True
+elevationTag = False
+
 def gpxStartElementHandler(name, attrs):
+	global elevationOk, elevationTag
 	if name == "trkpt":
-		outfile.write(attrs.get("lon") + "," + attrs.get("lat") + ",0\n")
+		outfile.write(attrs.get("lon") + "," + attrs.get("lat"))
+		elevationOk = False
+	if name == "ele":
+		elevationTag = True
+
+def gpxEndElementHandler(name):
+	global elevationOk, elevationTag
+	if name == "trkpt" and not elevationOk:
+		outfile.write(",0\n")
+	if name == "ele":
+		elevationTag = False
+
+def gpxCharacterDataHandler(data):
+	global elevationOk, elevationTag
+	if elevationTag:
+		outfile.write("," + data + "\n")
+		elevationOk = True
+
 
 lineStringHeader="<LineString><extrude>1</extrude><tessellate>1</tessellate><altitudeMode>absolute</altitudeMode>"
 lineStringFooter="</LineString>"
@@ -37,6 +58,9 @@ outfile.write(lineStringHeader + "\n")
 outfile.write(coordinatesHeader + "\n")
 
 parser.StartElementHandler = gpxStartElementHandler
+parser.EndElementHandler = gpxEndElementHandler
+parser.CharacterDataHandler = gpxCharacterDataHandler
+
 try:
 	parser.ParseFile(infile)
 except Exception:
