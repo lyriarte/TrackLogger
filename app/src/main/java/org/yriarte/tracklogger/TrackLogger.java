@@ -18,7 +18,7 @@ import java.util.Calendar;
 
 public class TrackLogger extends ActionBarActivity implements LocationListener {
 
-    static int minTimeUpdateSeconds = 30;
+    static int minTimeUpdateSeconds = 10;
     static float minDistanceUpdateMeters = 5;
 
     static String xmlHeader = "<?xml version='1.0' encoding='Utf-8' standalone='yes' ?>";
